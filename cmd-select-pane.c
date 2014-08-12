@@ -49,7 +49,7 @@ cmd_select_pane_exec(struct cmd *self, struct cmd_q *cmdq)
 	struct winlink		*wl;
 	struct window		*w;
 	struct session		*s;
-	struct window_pane	*wp, *lastwp, *markedwp;
+	struct window_pane	*wp, *lastwp, *markedwp, *next_wp = NULL;
 	const char		*style;
 
 	if (self->entry == &cmd_last_pane_entry || args_has(args, 'l')) {
@@ -121,15 +121,19 @@ cmd_select_pane_exec(struct cmd *self, struct cmd_q *cmdq)
 	}
 
 	if (args_has(self->args, 'L'))
-		wp = window_pane_find_left(wp);
+		next_wp = window_pane_find_left(wp);
 	else if (args_has(self->args, 'R'))
-		wp = window_pane_find_right(wp);
+		next_wp = window_pane_find_right(wp);
 	else if (args_has(self->args, 'U'))
-		wp = window_pane_find_up(wp);
+		next_wp = window_pane_find_up(wp);
 	else if (args_has(self->args, 'D'))
-		wp = window_pane_find_down(wp);
-	if (wp == NULL)
-		return (CMD_RETURN_NORMAL);
+		next_wp = window_pane_find_down(wp);
+
+	if (next_wp == NULL) {
+		if (options_get_number(&wl->window->options, "wrap-panes"))
+			return (CMD_RETURN_ERROR);
+	} else
+		wp = next_wp;
 
 	if (args_has(self->args, 'e')) {
 		wp->flags &= ~PANE_INPUTOFF;
