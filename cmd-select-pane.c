@@ -66,7 +66,7 @@ cmd_select_pane_exec(struct cmd *self, struct cmd_q *cmdq)
 {
 	struct args		*args = self->args;
 	struct winlink		*wl;
-	struct window_pane	*wp;
+	struct window_pane	*wp, *next_wp = NULL;
 
 	if (self->entry == &cmd_last_pane_entry || args_has(args, 'l')) {
 		wl = cmd_find_window(cmdq, args_get(args, 't'), NULL);
@@ -96,17 +96,21 @@ cmd_select_pane_exec(struct cmd *self, struct cmd_q *cmdq)
 	}
 
 	if (args_has(self->args, 'L'))
-		wp = window_pane_find_left(wp);
+		next_wp = window_pane_find_left(wp);
 	else if (args_has(self->args, 'R'))
-		wp = window_pane_find_right(wp);
+		next_wp = window_pane_find_right(wp);
 	else if (args_has(self->args, 'U'))
-		wp = window_pane_find_up(wp);
+		next_wp = window_pane_find_up(wp);
 	else if (args_has(self->args, 'D'))
-		wp = window_pane_find_down(wp);
-	if (wp == NULL) {
-		cmdq_error(cmdq, "pane not found");
-		return (CMD_RETURN_ERROR);
-	}
+		next_wp = window_pane_find_down(wp);
+
+	if (next_wp == NULL) {
+		if (options_get_number(&wl->window->options, "wrap-panes")) {
+			cmdq_error(cmdq, "pane not found");
+			return (CMD_RETURN_ERROR);
+		}
+	} else
+		wp = next_wp;
 
 	window_set_active_pane(wl->window, wp);
 	server_status_window(wl->window);

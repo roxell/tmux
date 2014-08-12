@@ -510,6 +510,11 @@ const struct options_table_entry window_options_table[] = {
 	  .default_num = 0
 	},
 
+	{ .name = "wrap-panes",
+	  .type = OPTIONS_TABLE_FLAG,
+	  .default_num = 1
+	},
+
 	{ .name = "allow-rename",
 	  .type = OPTIONS_TABLE_FLAG,
 	  .default_num = 1
