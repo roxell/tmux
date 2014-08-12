@@ -1186,7 +1186,7 @@ window_pane_find_up(struct window_pane *wp)
 	ARRAY_INIT(&list);
 
 	edge = wp->yoff;
-	if (edge == 0)
+	if (edge == 0 && options_get_number(&wp->window->options, "wrap-panes"))
 		edge = wp->window->sy + 1;
 
 	left = wp->xoff;
@@ -1229,7 +1229,7 @@ window_pane_find_down(struct window_pane *wp)
 	ARRAY_INIT(&list);
 
 	edge = wp->yoff + wp->sy + 1;
-	if (edge >= wp->window->sy)
+	if (edge >= wp->window->sy && options_get_number(&wp->window->options, "wrap-panes"))
 		edge = 0;
 
 	left = wp->xoff;
@@ -1272,7 +1272,7 @@ window_pane_find_left(struct window_pane *wp)
 	ARRAY_INIT(&list);
 
 	edge = wp->xoff;
-	if (edge == 0)
+	if (edge == 0 && options_get_number(&wp->window->options, "wrap-panes"))
 		edge = wp->window->sx + 1;
 
 	top = wp->yoff;
@@ -1315,7 +1315,7 @@ window_pane_find_right(struct window_pane *wp)
 	ARRAY_INIT(&list);
 
 	edge = wp->xoff + wp->sx + 1;
-	if (edge >= wp->window->sx)
+	if (edge >= wp->window->sx && options_get_number(&wp->window->options, "wrap-panes"))
 		edge = 0;
 
 	top = wp->yoff;
